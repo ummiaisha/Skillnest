@@ -1,0 +1,7 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" rx="20" fill="black"/>
+  <path d="M50 25L25 35L50 45L75 35L50 25Z" fill="white"/>
+  <path d="M30 37V50C30 50 40 55 50 55C60 55 70 50 70 50V37" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  <path d="M26 38V55" stroke="white" stroke-width="2" stroke-dasharray="2 2"/>
+  <text x="50" y="85" text-anchor="middle" fill="white" font-family="Arial" font-weight="900" font-size="35">SN</text>
+</svg>

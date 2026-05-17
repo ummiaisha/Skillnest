@@ -36,7 +36,7 @@ export default function ChallengesPage() {
     const loadChallenges = async () => {
       let query = supabase
         .from('challenges')
-        .select('*');
+        .select('*, challenge_submissions(profiles(id, avatar_url, full_name, username))');
       
       if (searchQuery) {
         query = query.ilike('title', `%${searchQuery}%`);
@@ -49,16 +49,23 @@ export default function ChallengesPage() {
       const { data: realChallenges } = await query.order('created_at', { ascending: false });
       
       if (realChallenges) {
-        setChallenges(realChallenges.map(c => ({
-          id: c.id,
-          title: c.title,
-          category: c.category || "Skill Development",
-          difficulty: c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1),
-          points: c.points_reward,
-          time: "Limited Time",
-          image_url: c.image_url,
-          status: "open"
-        })));
+        setChallenges(realChallenges.map(c => {
+          const participants = c.challenge_submissions
+            ?.map((s: any) => s.profiles)
+            .filter(Boolean) || [];
+
+          return {
+            id: c.id,
+            title: c.title,
+            category: c.category || "Skill Development",
+            difficulty: c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1),
+            points: c.points_reward,
+            time: "Limited Time",
+            image_url: c.image_url,
+            status: "open",
+            participants: participants
+          };
+        }));
       }
       setLoading(false);
     };
@@ -95,7 +102,7 @@ export default function ChallengesPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 lg:px-8 py-12">
+    <div className="max-w-[1400px] mx-auto px-4 lg:px-8 py-12">
       <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-12">
         <div className="max-w-xl">
           <Badge className="mb-2 bg-primary text-background text-[10px] uppercase tracking-widest px-3">Daily Quests</Badge>
@@ -137,7 +144,7 @@ export default function ChallengesPage() {
         </TabsList>
       </Tabs>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
         {challenges.length > 0 ? challenges.map((challenge, i) => (
             <motion.div
               key={challenge.id}
@@ -170,26 +177,26 @@ export default function ChallengesPage() {
 
                     {/* TOP SECTION */}
                     <div className="p-6 pb-4">
-                      <div className="flex justify-between items-center mb-6">
-                        <div className="flex items-center gap-2">
+                      <div className="flex justify-between items-center mb-6 gap-3">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
                           <div className={cn(
-                            "px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-widest backdrop-blur-md transition-all duration-500",
+                            "px-3 py-1 shrink-0 rounded-full border text-[9px] font-black uppercase tracking-wider backdrop-blur-md transition-all duration-500",
                             challenge.difficulty === "Easy" ? "bg-green-500/10 border-green-500/20 text-green-400" :
                             challenge.difficulty === "Medium" ? "bg-orange-500/10 border-orange-500/20 text-orange-400" :
                             "bg-red-500/10 border-red-500/20 text-red-400"
                           )}>
                             {challenge.difficulty}
                           </div>
-                          <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-white/40">
+                          <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-wider text-white/40 truncate">
                             {challenge.category}
                           </div>
                         </div>
-                        <div className="h-8 w-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-background transition-all duration-500">
+                        <div className="h-8 w-8 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-background transition-all duration-500">
                           <Zap className="h-4 w-4 fill-current" />
                         </div>
                       </div>
 
-                      <h3 className="text-xl font-black leading-tight tracking-tight text-white mb-6 group-hover:text-primary transition-colors duration-500">
+                      <h3 className="text-lg font-black leading-tight tracking-tight text-white mb-4 line-clamp-2 group-hover:text-primary transition-colors duration-500">
                         {challenge.title}
                       </h3>
 
@@ -245,11 +252,26 @@ export default function ChallengesPage() {
                       <div className="h-px w-full bg-white/5 mb-6" />
                       <div className="flex items-center justify-between">
                         <div className="flex -space-x-2">
-                          {[1, 2, 3].map((u) => (
+                          {challenge.participants && challenge.participants.slice(0, 3).map((participant: any, u: number) => (
                             <Avatar key={u} className="h-7 w-7 border-2 border-[#0A0A0A] ring-1 ring-white/5">
-                              <AvatarFallback className="bg-[#1A1A1A] text-white/40 text-[8px] font-black">U{u}</AvatarFallback>
+                              {participant.avatar_url && (
+                                <AvatarImage src={participant.avatar_url} className="object-cover" />
+                              )}
+                              <AvatarFallback className="bg-[#1A1A1A] text-white/40 text-[8px] font-black">
+                                {participant.full_name?.charAt(0) || participant.username?.charAt(0) || "U"}
+                              </AvatarFallback>
                             </Avatar>
                           ))}
+                          {(!challenge.participants || challenge.participants.length === 0) && (
+                            <Avatar className="h-7 w-7 border-2 border-[#0A0A0A] ring-1 ring-white/5">
+                              <AvatarFallback className="bg-[#1A1A1A] text-white/20 text-[8px] font-black">?</AvatarFallback>
+                            </Avatar>
+                          )}
+                          {challenge.participants && challenge.participants.length > 3 && (
+                            <div className="h-7 w-7 rounded-full border-2 border-[#0A0A0A] ring-1 ring-white/5 bg-[#1A1A1A] flex items-center justify-center z-10 text-[8px] font-black text-white/60">
+                              +{challenge.participants.length - 3}
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex items-center gap-2 group/btn">

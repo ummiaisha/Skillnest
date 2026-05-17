@@ -22,6 +22,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function NewChallengePage() {
   const [loading, setLoading] = useState(true);

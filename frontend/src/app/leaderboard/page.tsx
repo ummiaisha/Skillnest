@@ -51,6 +51,7 @@ export default function LeaderboardPage() {
             points: p.total_points > 1000 ? (p.total_points / 1000).toFixed(1) + "K" : p.total_points,
             level: p.level || 1,
             streak: p.streak || 0,
+            avatar_url: p.avatar_url,
             avatar: p.full_name ? p.full_name.split(" ").map((n: string) => n[0]).join("") : "U",
             status: "online"
           })));
@@ -115,6 +116,7 @@ export default function LeaderboardPage() {
               user.rank === 1 ? "h-32 w-32" : "h-24 w-24"
             )}>
               <Avatar className="h-full w-full border-4 border-foreground shadow-2xl">
+                <AvatarImage src={user.avatar_url} className="object-cover" />
                 <AvatarFallback className="bg-secondary text-2xl font-black">{user.avatar}</AvatarFallback>
               </Avatar>
               <div className={cn(
@@ -169,6 +171,7 @@ export default function LeaderboardPage() {
                       </span>
                       <div className="flex items-center gap-4">
                         <Avatar className="h-10 w-10 border border-border">
+                          <AvatarImage src={user.avatar_url} className="object-cover" />
                           <AvatarFallback className="bg-secondary text-[10px] font-black">{user.avatar}</AvatarFallback>
                         </Avatar>
                         <div>

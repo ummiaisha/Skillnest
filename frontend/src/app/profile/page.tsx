@@ -294,7 +294,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 space-y-12">
+    <div className="max-w-4xl mx-auto px-6 py-12 space-y-12">
       {/* Profile Header */}
       <section className="relative">
         <div className="h-48 w-full bg-gradient-to-br from-secondary/50 via-background to-secondary/30 rounded-[2rem] border border-border overflow-hidden relative">

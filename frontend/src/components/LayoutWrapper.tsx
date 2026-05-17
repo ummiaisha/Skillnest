@@ -14,6 +14,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const isAdminPage = pathname?.startsWith("/admin");
   const isUserDashboardPage = pathname?.startsWith("/user");
   const isMessagesPage = pathname?.startsWith("/messages");
+  const isLiveStreamPage = pathname?.startsWith("/live/") && pathname !== "/live"; // viewer + creator pages are fullscreen
   
   // Define pages where sidebars should be hidden
   const hideSidebars = [
@@ -21,10 +22,10 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     "/register", 
     "/forgot-password",
     "/" 
-  ].includes(pathname) || isWorkspace || isAdminPage || isUserDashboardPage || isMessagesPage;
+  ].includes(pathname) || isWorkspace || isAdminPage || isUserDashboardPage || isMessagesPage || isLiveStreamPage;
 
   // Hide global navbar on auth pages, workspace page, admin pages, and user dashboard pages
-  const hideNavbar = isAuthPage || isWorkspace || isAdminPage || isUserDashboardPage || isMessagesPage;
+  const hideNavbar = isAuthPage || isWorkspace || isAdminPage || isUserDashboardPage || isMessagesPage || isLiveStreamPage;
 
   return (
     <div className="flex flex-col min-h-screen">

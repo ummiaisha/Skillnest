@@ -9,7 +9,10 @@ import {
   Plus,
   Check,
   ExternalLink,
-  Zap
+  Zap,
+  Users,
+  Code2,
+  Radio
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,11 +30,23 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+
+const PersonalWorkspace = dynamic(
+  () => import("@/components/workspace/PersonalWorkspace"),
+  { ssr: false, loading: () => (
+    <div className="flex-1 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-white/20" />
+    </div>
+  )}
+);
 
 export default function UserDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [adminProfile, setAdminProfile] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<"quests" | "workspace" | "live">("quests");
   const router = useRouter();
 
   // Challenges Management
@@ -265,11 +280,31 @@ export default function UserDashboardPage() {
           
           <nav className="space-y-1">
             <button
-              className="w-full flex items-center gap-3.5 h-12 px-4 rounded-2xl font-bold text-sm tracking-tight transition-all text-left bg-white text-black shadow-lg"
+              onClick={() => setActiveTab("quests")}
+              className={`w-full flex items-center gap-3.5 h-12 px-4 rounded-2xl font-bold text-sm tracking-tight transition-all text-left ${
+                activeTab === "quests" ? "bg-white text-black shadow-lg" : "text-white/40 hover:text-white hover:bg-white/5"
+              }`}
             >
               <Zap className="h-4 w-4" />
               Quest Development
             </button>
+            <button
+              onClick={() => setActiveTab("workspace")}
+              className={`w-full flex items-center gap-3.5 h-12 px-4 rounded-2xl font-bold text-sm tracking-tight transition-all text-left ${
+                activeTab === "workspace" ? "bg-white text-black shadow-lg" : "text-white/40 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Code2 className="h-4 w-4" />
+              My Workspace
+            </button>
+            <Link href="/live/start" className="block">
+              <button
+                className="w-full flex items-center gap-3.5 h-12 px-4 rounded-2xl font-bold text-sm tracking-tight transition-all text-left text-red-400 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/30"
+              >
+                <Radio className="h-4 w-4" />
+                Go Live
+              </button>
+            </Link>
           </nav>
         </div>
 
@@ -294,26 +329,28 @@ export default function UserDashboardPage() {
       </aside>
 
       {/* 🖥️ Main Dashboard Workspace */}
-      <main className="flex-1 p-8 lg:p-12 overflow-y-auto">
+      <main className="flex-1 p-6 lg:p-10 overflow-y-auto flex flex-col min-h-0">
         
-        {/* Dynamic Headers based on selected tab */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+        {/* Tab: Quest Development */}
+        {activeTab === "quests" && (
           <div>
-            <h1 className="text-4xl lg:text-6xl font-black tracking-tighter mb-2">
-              Quest Development 
-            </h1>
-            <p className="text-white/40 font-medium">
-              Create new coding missions, edit levels, or remove modules.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="h-10 px-4 rounded-full border-white/5 bg-[#0A0A0A] flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Server Live</span>
-            </Badge>
-            <Button onClick={fetchData} variant="outline" className="h-10 rounded-full border-white/10 hover:bg-white/5 font-bold">Sync Database</Button>
-          </div>
-        </div>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+              <div>
+                <h1 className="text-4xl lg:text-6xl font-black tracking-tighter mb-2">
+                  Quest Development
+                </h1>
+                <p className="text-white/40 font-medium">
+                  Create new coding missions, edit levels, or remove modules.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="outline" className="h-10 px-4 rounded-full border-white/5 bg-[#0A0A0A] flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Server Live</span>
+                </Badge>
+                <Button onClick={fetchData} variant="outline" className="h-10 rounded-full border-white/10 hover:bg-white/5 font-bold">Sync Database</Button>
+              </div>
+            </div>
 
         <div className="space-y-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -556,8 +593,25 @@ export default function UserDashboardPage() {
               </div>
             </DialogContent>
           </Dialog>
-
         </div>
+          </div>
+        )} {/* end activeTab === quests */}
+
+        {/* Tab: My Workspace */}
+        {activeTab === "workspace" && sessionUser && (
+          <div className="flex flex-col h-[calc(100vh-8rem)] min-h-[600px]">
+            <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <h1 className="text-3xl font-black tracking-tighter">My Workspace</h1>
+                <p className="text-white/40 font-medium text-sm">Build, experiment, and save code projects.</p>
+              </div>
+            </div>
+            <div className="flex-1 min-h-0">
+              <PersonalWorkspace userId={sessionUser.id} />
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );

@@ -79,7 +79,7 @@ export default function SkillPostsPage() {
     }
   };
 
-  const fetchPosts = async (filter = "latest", pageNum = 1, search = "", category = null) => {
+  const fetchPosts = async (filter = "latest", pageNum = 1, search = "", category: string | null = null) => {
     const pageSize = 6;
     let query = supabase
       .from('posts')

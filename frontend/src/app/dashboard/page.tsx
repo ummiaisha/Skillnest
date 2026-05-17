@@ -445,7 +445,7 @@ export default function HomeFeedPage() {
                   {profileData?.full_name?.split(" ").map((n: any) => n[0]).join("") || "PI"}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 space-y-6">
+              <div className="flex-1 space-y-6 min-w-0">
                 <textarea
                   placeholder="Share your progress, a new skill, or ask a question..."
                   className="w-full bg-transparent border-none focus:ring-0 text-base font-medium resize-none h-24 placeholder:text-white/20"
@@ -524,8 +524,8 @@ export default function HomeFeedPage() {
                     </Badge>
                   </div>
                 )}
-                <div className="flex justify-between items-center pt-4 border-t border-white/[0.03]">
-                  <div className="flex gap-2">
+                <div className="flex flex-wrap justify-between items-center gap-4 pt-4 border-t border-white/[0.03]">
+                  <div className="flex flex-wrap gap-2">
                     <input 
                       type="file"
                       ref={fileInputRef}
@@ -599,7 +599,7 @@ export default function HomeFeedPage() {
                   <Button 
                     onClick={handleCreatePost}
                     disabled={(!postContent.trim() && !selectedImage && !selectedVideo) || isPosting || uploadingMedia}
-                    className="bg-white text-black hover:bg-white/90 rounded-2xl font-black text-[10px] uppercase tracking-widest px-8 h-11 shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-50"
+                    className="bg-white text-black hover:bg-white/90 rounded-2xl font-black text-[10px] uppercase tracking-widest px-4 sm:px-8 h-11 shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-50"
                   >
                     {isPosting ? "Posting..." : uploadingMedia ? "Uploading..." : "Share Update"}
                   </Button>

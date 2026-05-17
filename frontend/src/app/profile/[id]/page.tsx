@@ -173,7 +173,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-12">
+    <div className="max-w-4xl mx-auto px-6 py-8 space-y-12">
       <Link href="/dashboard" className="inline-flex items-center text-sm font-bold text-muted-foreground hover:text-foreground transition-colors group">
         <ArrowLeft className="mr-2 h-4 w-4 group-hover:-translate-x-1 transition-transform" />
         Back to network
@@ -185,22 +185,22 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=1200&auto=format&fit=crop&q=60')] opacity-10 bg-cover bg-center" />
         </div>
         
-        <div className="px-8 -mt-16 flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10">
+        <div className="px-4 -mt-14 flex flex-col md:flex-row md:items-end justify-between gap-4 relative z-10">
           <div className="flex flex-col md:flex-row md:items-end gap-8">
-            <div className="h-32 w-32 rounded-[2.5rem] bg-background border-8 border-background shadow-2xl overflow-hidden p-1 flex-shrink-0">
-              <Avatar className="h-full w-full rounded-[2rem]">
+            <div className="h-24 w-24 rounded-[2rem] bg-background border-4 border-background shadow-2xl overflow-hidden p-1 flex-shrink-0">
+              <Avatar className="h-full w-full rounded-[1.5rem]">
                 <AvatarImage src={profileData?.avatar_url} className="object-cover" />
                 <AvatarFallback className="bg-secondary text-3xl font-black">
                   {profileData?.full_name?.split(" ").map((n: any) => n[0]).join("") || "U"}
                 </AvatarFallback>
               </Avatar>
             </div>
-            <div className="pb-8">
+            <div className="pb-6">
               <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-black tracking-tighter">{profileData?.full_name || "Skill Legend"}</h1>
+                <h1 className="text-xl font-black tracking-tighter">{profileData?.full_name || "Skill Legend"}</h1>
                 {isCurrentUser && <Badge className="bg-foreground text-background text-[8px] uppercase tracking-tighter">You</Badge>}
               </div>
-              <p className="text-muted-foreground font-bold text-sm">@{profileData?.username || "seeker"}</p>
+              <p className="text-muted-foreground font-bold text-xs">@{profileData?.username || "seeker"}</p>
               <div className="flex items-center gap-6 mt-3">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-black text-white">{followerCount}</span>
@@ -214,19 +214,19 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
           
-          <div className="flex gap-2 pb-8">
+          <div className="flex gap-1.5 pb-6 flex-wrap">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleShareProfile}
-              className="rounded-full border-white/10 hover:bg-white/5 font-black text-[9px] uppercase tracking-widest px-6 h-10"
+              className="rounded-full border-white/10 hover:bg-white/5 font-black text-[9px] uppercase tracking-widest px-4 h-8"
             >
               Share
             </Button>
             {isCurrentUser ? (
               <Link href="/profile">
                 <Button 
-                  className="rounded-full bg-white text-black hover:bg-white/90 font-black text-[9px] uppercase tracking-widest px-6 h-10"
+                  className="rounded-full bg-white text-black hover:bg-white/90 font-black text-[9px] uppercase tracking-widest px-4 h-8"
                 >
                   Edit Profile
                 </Button>
@@ -236,7 +236,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                 <Link href={`/messages?userId=${id}`}>
                   <Button 
                     variant="outline"
-                    className="rounded-full font-black text-[9px] uppercase tracking-widest px-6 h-10 border-white/10 hover:bg-white/5 transition-all"
+                    className="rounded-full font-black text-[9px] uppercase tracking-widest px-4 h-8 border-white/10 hover:bg-white/5 transition-all"
                   >
                     <MessageSquare className="h-3 w-3 mr-2" /> Message
                   </Button>
@@ -245,7 +245,7 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
                   onClick={handleFollow}
                   disabled={isFollowLoading}
                   className={cn(
-                    "rounded-full font-black text-[9px] uppercase tracking-widest px-6 h-10 transition-all",
+                    "rounded-full font-black text-[9px] uppercase tracking-widest px-4 h-8 transition-all",
                     isFollowing 
                       ? "bg-secondary text-foreground hover:bg-secondary/80" 
                       : "bg-white text-black hover:bg-white/90"

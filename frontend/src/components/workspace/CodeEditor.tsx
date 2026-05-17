@@ -79,7 +79,7 @@ export default function CodeEditor({
             endColumn: position.column,
           });
 
-          const suggestions = [];
+          const suggestions: any[] = [];
 
           // Check if line ends with "!"
           if (textUntilPosition.trim() === "!") {
@@ -169,7 +169,7 @@ export default function CodeEditor({
 
           const words = textUntilPosition.trim().split(/\s+/);
           const lastWord = words[words.length - 1] || "";
-          const suggestions = [];
+          const suggestions: any[] = [];
 
           if (lastWord) {
             const cssSnippets = [

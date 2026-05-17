@@ -446,36 +446,35 @@ export default function ChallengeDetailsPage({ params }: { params: Promise<{ id:
               <CardDescription className="text-[9px] font-black uppercase tracking-[0.2em] text-primary">Mission Assets</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/5 border border-white/10 group hover:bg-white/10 transition-all">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
-                    <Zap className="h-4 w-4 fill-primary" />
+              <div className="flex items-center justify-between p-3.5 rounded-[1.2rem] bg-white/5 border border-white/10 group hover:bg-white/10 transition-all overflow-hidden">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="h-7 w-7 shrink-0 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                    <Zap className="h-3.5 w-3.5 fill-primary" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-black text-[11px] leading-tight whitespace-nowrap">XP Points</p>
-                    <p className="text-[7px] font-black uppercase tracking-widest text-white/20 truncate">Immediate Grant</p>
+                    <p className="font-black text-[10px] leading-tight whitespace-nowrap truncate">XP Points</p>
+                    <p className="text-[6px] font-black uppercase tracking-wider text-white/20 truncate">Immediate Grant</p>
                   </div>
                 </div>
-                <span className="font-black text-[12px] text-primary ml-2 shrink-0">+{challenge.points_reward}</span>
+                <span className="font-black text-[10px] text-primary ml-1.5 shrink-0">+{challenge.points_reward}</span>
               </div>
-              
-              <div className="flex items-center justify-between p-5 rounded-[1.5rem] bg-white/[0.02] border border-white/5 group hover:bg-white/5 transition-all">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground">
-                    <Trophy className="h-4 w-4" />
+              <div className="flex items-center justify-between p-3.5 rounded-[1.2rem] bg-white/[0.02] border border-white/5 group hover:bg-white/5 transition-all overflow-hidden">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="h-7 w-7 shrink-0 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground">
+                    <Trophy className="h-3.5 w-3.5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-black text-[11px] leading-tight whitespace-nowrap">Design Badge</p>
-                    <p className="text-[7px] font-black uppercase tracking-widest text-white/20 truncate">Verified Reward</p>
+                    <p className="font-black text-[10px] leading-tight whitespace-nowrap truncate">Design Badge</p>
+                    <p className="text-[6px] font-black uppercase tracking-wider text-white/20 truncate">Verified Reward</p>
                   </div>
                 </div>
-                <Badge variant="outline" className="border-white/10 font-black text-[7px] uppercase tracking-widest px-2 py-0.5 ml-2 shrink-0">Rare</Badge>
+                <Badge variant="outline" className="border-white/10 font-black text-[6px] uppercase tracking-wider px-1.5 py-0.5 ml-1.5 shrink-0">Rare</Badge>
               </div>
 
               {!isJoined ? (
                 <Button 
                   onClick={handleJoin}
-                  className="w-full rounded-[1.2rem] h-16 bg-white text-black font-black uppercase tracking-widest text-xs hover:bg-white/90 transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 mt-4"
+                  className="w-full rounded-[1.2rem] h-16 bg-white text-black font-black uppercase tracking-wider text-[10px] hover:bg-white/90 transition-all shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 mt-4"
                 >
                   Join Challenge
                 </Button>
@@ -493,10 +492,10 @@ export default function ChallengeDetailsPage({ params }: { params: Promise<{ id:
 
                   <Link href={`/challenges/${id}/workspace`} className="block w-full">
                     <Button 
-                      className="w-full rounded-[1.2rem] h-14 bg-primary text-background font-black uppercase tracking-widest text-[10px] hover:bg-primary/95 transition-all shadow-[0_15px_30px_rgba(255,255,255,0.02)] gap-2 active:scale-95"
+                      className="w-full rounded-[1.2rem] h-14 bg-primary text-background font-black uppercase tracking-wider text-[9px] hover:bg-primary/95 transition-all shadow-[0_15px_30px_rgba(255,255,255,0.02)] gap-2 active:scale-95 px-2"
                     >
-                      <Code className="h-4 w-4" />
-                      Launch Workspace
+                      <Code className="h-4 w-4 shrink-0" />
+                      <span className="truncate">Launch Workspace</span>
                     </Button>
                   </Link>
                   
@@ -509,10 +508,10 @@ export default function ChallengeDetailsPage({ params }: { params: Promise<{ id:
                   <Dialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>
                     <DialogTrigger asChild>
                       <Button 
-                        className="w-full rounded-[1.2rem] h-14 bg-white text-black font-black uppercase tracking-widest text-[10px] hover:bg-white/90 transition-all shadow-xl gap-2 active:scale-95"
+                        className="w-full rounded-[1.2rem] h-14 bg-white text-black font-black uppercase tracking-wider text-[9px] hover:bg-white/90 transition-all shadow-xl gap-2 active:scale-95 px-2"
                       >
-                        <Upload className="h-3.5 w-3.5" />
-                        Submit Proof
+                        <Upload className="h-3.5 w-3.5 shrink-0" />
+                        <span className="truncate">Submit Proof</span>
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-[#0D0D0D] border-white/10 rounded-[2.5rem] max-w-md">

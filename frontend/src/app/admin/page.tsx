@@ -746,7 +746,7 @@ export default function AdminDashboardPage() {
 
             <div className="border border-white/5 bg-[#0A0A0A] rounded-[2rem] overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[800px]">
+                <table className="w-full text-left border-collapse min-w-[1000px]">
                   <thead>
                     <tr className="border-b border-white/5 text-[9px] font-black uppercase tracking-widest text-white/40">
                       <th className="p-6">User</th>
@@ -785,18 +785,22 @@ export default function AdminDashboardPage() {
                           <Button 
                             onClick={() => handleToggleAdmin(u.id, u.role || 'user')}
                             variant="outline" 
-                            className="h-8 rounded-xl text-[9px] border-white/5 hover:bg-white/5 font-black uppercase tracking-widest"
+                            size="icon"
+                            className={`h-8 w-8 rounded-xl border-white/5 hover:bg-white/5 transition-all ${
+                              u.role === 'admin' ? 'bg-white text-black hover:bg-white/90' : 'text-white/60'
+                            }`}
+                            title={u.role === 'admin' ? 'Revoke Admin' : 'Make Admin'}
                           >
-                            <Crown className="h-3 w-3 mr-1" />
-                            {u.role === 'admin' ? 'Revoke' : 'Make Admin'}
+                            <Crown className="h-4 w-4" />
                           </Button>
                           <Button 
                             onClick={() => handleGrantXP(u.id, u.total_points || 0)}
                             variant="outline" 
-                            className="h-8 rounded-xl text-[9px] border-white/5 hover:bg-white/5 font-black uppercase tracking-widest"
+                            size="icon"
+                            className="h-8 w-8 rounded-xl border-white/5 hover:bg-white/5 text-white/60 transition-all"
+                            title="Award +500 XP"
                           >
-                            <Plus className="h-3 w-3 mr-1" />
-                            +500 XP
+                            <Plus className="h-4 w-4" />
                           </Button>
                           {u.id !== sessionUser?.id && (
                             <>
@@ -814,18 +818,20 @@ export default function AdminDashboardPage() {
                                   setIsEditUserOpen(true);
                                 }}
                                 variant="outline" 
-                                className="h-8 rounded-xl text-[9px] border-white/5 hover:bg-white/5 font-black uppercase tracking-widest"
+                                size="icon"
+                                className="h-8 w-8 rounded-xl border-white/5 hover:bg-white/5 text-white/60 transition-all"
+                                title="Edit User Profile"
                               >
-                                <Edit className="h-3 w-3 mr-1" />
-                                Edit
+                                <Edit className="h-4 w-4" />
                               </Button>
                               <Button 
                                 onClick={() => handleDeleteUser(u.id)}
                                 variant="ghost" 
-                                className="h-8 rounded-xl text-[9px] hover:bg-red-500/10 text-red-500 hover:text-red-500 font-black uppercase tracking-widest"
+                                size="icon"
+                                className="h-8 w-8 rounded-xl hover:bg-red-500/10 text-red-500 hover:text-red-500 transition-all"
+                                title="Delete User"
                               >
-                                <Trash2 className="h-3.5 w-3.5 mr-1" />
-                                Delete
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </>
                           )}

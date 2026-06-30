@@ -342,10 +342,12 @@ export default function AdminDashboardPage() {
       await supabase.from('user_badges').delete().eq('user_id', userId);
 
       // 10. Delete messages sent or received by user
-      await supabase.from('messages').delete().or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+      await supabase.from('messages').delete().eq('sender_id', userId);
+      await supabase.from('messages').delete().eq('receiver_id', userId);
 
       // 11. Delete follower/following relations
-      await supabase.from('followers').delete().or(`follower_id.eq.${userId},following_id.eq.${userId}`);
+      await supabase.from('followers').delete().eq('follower_id', userId);
+      await supabase.from('followers').delete().eq('following_id', userId);
 
       // 12. Finally, delete user profile
       const { error } = await supabase

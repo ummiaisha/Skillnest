@@ -147,8 +147,15 @@ export default function UserDashboardPage() {
           .single();
           
         if (profile) {
-          if (profile.role !== 'admin' && profile.total_points < 10000) {
-            toast.error("Access Denied: Requires 10,000+ XP.");
+          const { count: followersCount } = await supabase
+            .from('followers')
+            .select('*', { count: 'exact', head: true })
+            .eq('following_id', session.user.id);
+            
+          const followers = followersCount || 0;
+
+          if (profile.role !== 'admin' && followers < 30) {
+            toast.error("Access Denied: Requires 30 followers.");
             window.location.href = "/dashboard";
             return;
           }

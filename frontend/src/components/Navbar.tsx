@@ -284,7 +284,7 @@ export default function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2">
               <Button variant="ghost" asChild className="font-bold rounded-xl h-9 text-xs">
                 <Link href="/login" className="flex items-center gap-2">
                   <LogIn className="h-4 w-4" /> Sign In

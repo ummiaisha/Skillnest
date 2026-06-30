@@ -106,6 +106,23 @@ export default function Signup() {
                 placeholder="Minimum 6 characters"
               />
             </div>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+              <input 
+                type="checkbox" 
+                id="agree" 
+                required 
+                style={{ 
+                  marginTop: '0.2rem', 
+                  cursor: 'pointer',
+                  width: '16px',
+                  height: '16px',
+                  accentColor: 'var(--primary)'
+                }}
+              />
+              <label htmlFor="agree" style={{ fontSize: '0.85rem', color: '#a1a1aa', cursor: 'pointer', lineHeight: '1.4' }}>
+                I agree to the <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Terms of Service</a> and <a href="#" style={{ color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>Privacy Policy</a>.
+              </label>
+            </div>
             <button 
               type="submit" 
               disabled={loading}

@@ -22,7 +22,8 @@ import {
   Globe,
   Lock,
   Cpu,
-  ExternalLink
+  ExternalLink,
+  Edit
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -35,7 +36,8 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogDescription,
-  DialogTrigger 
+  DialogTrigger,
+  DialogFooter
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -81,6 +83,18 @@ export default function AdminDashboardPage() {
   const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null);
   const [challengeSubmissions, setChallengeSubmissions] = useState<any[]>([]);
   const [isSubmissionsOpen, setIsSubmissionsOpen] = useState(false);
+
+  // Edit User State
+  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
+  const [editUserForm, setEditUserForm] = useState({
+    id: "",
+    full_name: "",
+    username: "",
+    bio: "",
+    skills: "",
+    location: "",
+    website: ""
+  });
 
   const handleAction = (action: string) => {
     toast.success(`${action} initiated successfully.`);
@@ -277,6 +291,105 @@ export default function AdminDashboardPage() {
       fetchData();
     } else {
       toast.error("Failed to award XP.");
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user? This will permanently delete their profile, posts, comments, likes, activities, and all other contributions.")) {
+      return;
+    }
+
+    try {
+      toast.loading("Deleting user data...", { id: "delete-user" });
+
+      // 1. Fetch user's posts
+      const { data: userPosts } = await supabase.from('posts').select('id').eq('user_id', userId);
+      const postIds = userPosts?.map(p => p.id) || [];
+
+      if (postIds.length > 0) {
+        // Delete comments on user's posts
+        await supabase.from('comments').delete().in('post_id', postIds);
+        // Delete likes on user's posts
+        await supabase.from('likes').delete().in('post_id', postIds);
+      }
+
+      // 2. Delete comments made by user
+      await supabase.from('comments').delete().eq('user_id', userId);
+
+      // 3. Delete likes made by user
+      await supabase.from('likes').delete().eq('user_id', userId);
+
+      // 4. Delete activities
+      await supabase.from('activities').delete().eq('user_id', userId);
+
+      // 5. Delete posts
+      await supabase.from('posts').delete().eq('user_id', userId);
+
+      // 6. Delete challenge submissions
+      await supabase.from('challenge_submissions').delete().eq('user_id', userId);
+
+      // 7. Find challenges created by user and delete their submissions
+      const { data: userChallenges } = await supabase.from('challenges').select('id').eq('author_id', userId);
+      const challengeIds = userChallenges?.map(c => c.id) || [];
+      if (challengeIds.length > 0) {
+        await supabase.from('challenge_submissions').delete().in('challenge_id', challengeIds);
+      }
+
+      // 8. Delete challenges created by user
+      await supabase.from('challenges').delete().eq('author_id', userId);
+
+      // 9. Delete user badges
+      await supabase.from('user_badges').delete().eq('user_id', userId);
+
+      // 10. Delete messages sent or received by user
+      await supabase.from('messages').delete().or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+
+      // 11. Delete follower/following relations
+      await supabase.from('followers').delete().or(`follower_id.eq.${userId},following_id.eq.${userId}`);
+
+      // 12. Finally, delete user profile
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast.success("User and all their posts/activities deleted successfully!", { id: "delete-user" });
+      fetchData();
+    } catch (err: any) {
+      console.error("Delete user error:", err);
+      toast.error("Failed to delete user: " + err.message, { id: "delete-user" });
+    }
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editUserForm.id) return;
+
+    try {
+      const updatedProfile = {
+        full_name: editUserForm.full_name,
+        username: editUserForm.username.trim() || null,
+        bio: editUserForm.bio,
+        skills: editUserForm.skills.split(",").map(s => s.trim()).filter(s => s !== ""),
+        location: editUserForm.location,
+        website: editUserForm.website,
+        updated_at: new Date().toISOString()
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(updatedProfile)
+        .eq('id', editUserForm.id);
+
+      if (error) throw error;
+
+      toast.success("User profile updated successfully!");
+      setIsEditUserOpen(false);
+      fetchData();
+    } catch (err: any) {
+      toast.error("Failed to update user profile: " + err.message);
     }
   };
 
@@ -668,14 +781,14 @@ export default function AdminDashboardPage() {
                         <td className="p-6 text-center font-black text-sm">{u.total_points || 0}</td>
                         <td className="p-6 text-center font-black text-sm">{u.level || 1}</td>
                         <td className="p-6 text-center font-black text-sm">{u.streak || 0} 🔥</td>
-                        <td className="p-6 text-right space-x-2">
+                        <td className="p-6 text-right space-x-2 whitespace-nowrap">
                           <Button 
                             onClick={() => handleToggleAdmin(u.id, u.role || 'user')}
                             variant="outline" 
                             className="h-8 rounded-xl text-[9px] border-white/5 hover:bg-white/5 font-black uppercase tracking-widest"
                           >
                             <Crown className="h-3 w-3 mr-1" />
-                            {u.role === 'admin' ? 'Revoke Admin' : 'Make Admin'}
+                            {u.role === 'admin' ? 'Revoke' : 'Make Admin'}
                           </Button>
                           <Button 
                             onClick={() => handleGrantXP(u.id, u.total_points || 0)}
@@ -685,6 +798,37 @@ export default function AdminDashboardPage() {
                             <Plus className="h-3 w-3 mr-1" />
                             +500 XP
                           </Button>
+                          {u.id !== sessionUser?.id && (
+                            <>
+                              <Button 
+                                onClick={() => {
+                                  setEditUserForm({
+                                    id: u.id,
+                                    full_name: u.full_name || "",
+                                    username: u.username || "",
+                                    bio: u.bio || "",
+                                    skills: u.skills?.join(", ") || "",
+                                    location: u.location || "",
+                                    website: u.website || ""
+                                  });
+                                  setIsEditUserOpen(true);
+                                }}
+                                variant="outline" 
+                                className="h-8 rounded-xl text-[9px] border-white/5 hover:bg-white/5 font-black uppercase tracking-widest"
+                              >
+                                <Edit className="h-3 w-3 mr-1" />
+                                Edit
+                              </Button>
+                              <Button 
+                                onClick={() => handleDeleteUser(u.id)}
+                                variant="ghost" 
+                                className="h-8 rounded-xl text-[9px] hover:bg-red-500/10 text-red-500 hover:text-red-500 font-black uppercase tracking-widest"
+                              >
+                                <Trash2 className="h-3.5 w-3.5 mr-1" />
+                                Delete
+                              </Button>
+                            </>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -1155,6 +1299,80 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         )}
+      {/* Edit User Dialog Overlay */}
+      <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-[#0A0A0A] border-white/[0.05] text-white rounded-[2rem] p-8">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black">Edit User Profile</DialogTitle>
+            <DialogDescription className="text-white/40 text-xs">
+              Change user profile details. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdateUser}>
+            <div className="max-h-[60vh] overflow-y-auto pr-4 -mr-4 space-y-6 py-4 custom-scrollbar">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Full Name</label>
+                <Input 
+                  value={editUserForm.full_name}
+                  onChange={(e) => setEditUserForm({...editUserForm, full_name: e.target.value})}
+                  className="bg-white/5 border-white/10 rounded-xl"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Username</label>
+                <Input 
+                  value={editUserForm.username}
+                  onChange={(e) => setEditUserForm({...editUserForm, username: e.target.value})}
+                  className="bg-white/5 border-white/10 rounded-xl"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Bio</label>
+                <Textarea 
+                  value={editUserForm.bio}
+                  onChange={(e) => setEditUserForm({...editUserForm, bio: e.target.value})}
+                  className="bg-white/5 border-white/10 rounded-xl min-h-[100px]"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Skills (comma separated)</label>
+                <Input 
+                  value={editUserForm.skills}
+                  onChange={(e) => setEditUserForm({...editUserForm, skills: e.target.value})}
+                  className="bg-white/5 border-white/10 rounded-xl"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Location</label>
+                  <Input 
+                    value={editUserForm.location}
+                    onChange={(e) => setEditUserForm({...editUserForm, location: e.target.value})}
+                    placeholder="e.g. Lagos, Nigeria"
+                    className="bg-white/5 border-white/10 rounded-xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Website</label>
+                  <Input 
+                    value={editUserForm.website}
+                    onChange={(e) => setEditUserForm({...editUserForm, website: e.target.value})}
+                    placeholder="skillnest.hub"
+                    className="bg-white/5 border-white/10 rounded-xl"
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter className="pt-6">
+              <Button type="submit" className="w-full rounded-xl bg-white text-black font-black uppercase tracking-widest text-[10px] h-12">
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       </main>
     </div>
   );

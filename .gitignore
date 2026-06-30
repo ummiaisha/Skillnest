@@ -1,2 +1,6 @@
-﻿.agents/
-
+.agents/
+.vscode/
+.kiro/
+frontend/.expo/
+frontend/*.js
+frontend/scripts/

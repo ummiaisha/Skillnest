@@ -16,8 +16,7 @@ import {
   Send,
   Star,
   CornerDownRight,
-  X as CloseIcon,
-  Code
+  X as CloseIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -199,14 +198,14 @@ export default function ChallengeDetailsPage({ params }: { params: Promise<{ id:
       .update({ 
         status: 'completed', 
         proof_url: proofUrl,
-        proof_text: proofText,
-        completed_at: new Date().toISOString() 
+        proof_text: proofText
       })
       .eq('challenge_id', id)
       .eq('user_id', sessionUser.id);
 
     if (error) {
-      toast.error("Failed to submit proof");
+      console.error("Submission error:", error);
+      toast.error(error.message || "Failed to submit proof");
     } else {
       setIsCompleted(true);
       setIsSubmitDialogOpen(false);
@@ -488,21 +487,6 @@ export default function ChallengeDetailsPage({ params }: { params: Promise<{ id:
                   <div className="p-4 rounded-[1.2rem] bg-primary/10 border border-primary/20 text-primary flex items-center gap-3">
                     <CheckCircle2 className="h-4 w-4" />
                     <span className="text-[9px] font-black uppercase tracking-widest whitespace-nowrap">Participating</span>
-                  </div>
-
-                  <Link href={`/challenges/${id}/workspace`} className="block w-full">
-                    <Button 
-                      className="w-full rounded-[1.2rem] h-14 bg-primary text-background font-black uppercase tracking-wider text-[9px] hover:bg-primary/95 transition-all shadow-[0_15px_30px_rgba(255,255,255,0.02)] gap-2 active:scale-95 px-2"
-                    >
-                      <Code className="h-4 w-4 shrink-0" />
-                      <span className="truncate">Launch Workspace</span>
-                    </Button>
-                  </Link>
-                  
-                  <div className="flex items-center gap-3 my-2 select-none justify-center">
-                    <div className="h-[1px] bg-white/5 flex-1" />
-                    <span className="text-[8px] font-black uppercase tracking-widest text-white/20">or submit proof</span>
-                    <div className="h-[1px] bg-white/5 flex-1" />
                   </div>
                   
                   <Dialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>

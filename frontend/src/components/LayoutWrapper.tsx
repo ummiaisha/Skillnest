@@ -8,13 +8,11 @@ import { cn } from "@/lib/utils";
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   
-  const isWorkspace = pathname?.includes("/workspace");
   const isAuthPage = ["/login", "/register", "/forgot-password"].includes(pathname);
   
   const isAdminPage = pathname?.startsWith("/admin");
   const isUserDashboardPage = pathname?.startsWith("/user");
   const isMessagesPage = pathname?.startsWith("/messages");
-  const isLiveStreamPage = pathname?.startsWith("/live/") && pathname !== "/live"; // viewer + creator pages are fullscreen
   
   // Define pages where sidebars should be hidden
   const hideSidebars = [
@@ -22,10 +20,10 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     "/register", 
     "/forgot-password",
     "/" 
-  ].includes(pathname) || isWorkspace || isAdminPage || isUserDashboardPage || isMessagesPage || isLiveStreamPage;
+  ].includes(pathname) || isAdminPage || isUserDashboardPage || isMessagesPage;
 
-  // Hide global navbar on auth pages, workspace page, admin pages, and user dashboard pages
-  const hideNavbar = isAuthPage || isWorkspace || isAdminPage || isUserDashboardPage || isMessagesPage || isLiveStreamPage;
+  // Hide global navbar on auth pages, admin pages, and user dashboard pages
+  const hideNavbar = isAuthPage || isAdminPage || isUserDashboardPage || isMessagesPage;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -33,7 +31,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
       <div className={cn("flex flex-1", !hideNavbar && "pt-16")}>
         {!hideSidebars && <LeftSidebar />}
         <main className={cn(
-          "flex-1 min-h-screen",
+          "flex-1 min-h-screen min-w-0",
           !hideSidebars && "lg:ml-64 xl:mr-80"
         )}>
           {children}

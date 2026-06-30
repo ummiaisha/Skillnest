@@ -10,9 +10,7 @@ import {
   Check,
   ExternalLink,
   Zap,
-  Users,
-  Code2,
-  Radio
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,23 +28,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import dynamic from "next/dynamic";
 import Link from "next/link";
-
-const PersonalWorkspace = dynamic(
-  () => import("@/components/workspace/PersonalWorkspace"),
-  { ssr: false, loading: () => (
-    <div className="flex-1 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-white/20" />
-    </div>
-  )}
-);
 
 export default function UserDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [adminProfile, setAdminProfile] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"quests" | "workspace" | "live">("quests");
+  const [activeTab, setActiveTab] = useState<"quests">("quests");
   const router = useRouter();
 
   // Challenges Management
@@ -281,30 +269,11 @@ export default function UserDashboardPage() {
           <nav className="space-y-1">
             <button
               onClick={() => setActiveTab("quests")}
-              className={`w-full flex items-center gap-3.5 h-12 px-4 rounded-2xl font-bold text-sm tracking-tight transition-all text-left ${
-                activeTab === "quests" ? "bg-white text-black shadow-lg" : "text-white/40 hover:text-white hover:bg-white/5"
-              }`}
+              className="w-full flex items-center gap-3.5 h-12 px-4 rounded-2xl font-bold text-sm tracking-tight transition-all text-left bg-white text-black shadow-lg"
             >
               <Zap className="h-4 w-4" />
               Quest Development
             </button>
-            <button
-              onClick={() => setActiveTab("workspace")}
-              className={`w-full flex items-center gap-3.5 h-12 px-4 rounded-2xl font-bold text-sm tracking-tight transition-all text-left ${
-                activeTab === "workspace" ? "bg-white text-black shadow-lg" : "text-white/40 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              <Code2 className="h-4 w-4" />
-              My Workspace
-            </button>
-            <Link href="/live/start" className="block">
-              <button
-                className="w-full flex items-center gap-3.5 h-12 px-4 rounded-2xl font-bold text-sm tracking-tight transition-all text-left text-red-400 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/30"
-              >
-                <Radio className="h-4 w-4" />
-                Go Live
-              </button>
-            </Link>
           </nav>
         </div>
 
@@ -545,28 +514,17 @@ export default function UserDashboardPage() {
                         </Badge>
                       </div>
                       
-                      {/* Code Viewer */}
-                      <div className="mt-4 border border-white/10 rounded-2xl overflow-hidden bg-black/50">
-                        <div className="px-4 py-2 bg-white/5 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-white/40">
-                          Workspace Output
+                      {/* Submission Proof */}
+                      {sub.proof_text && (
+                        <div className="mt-4 border border-white/10 rounded-2xl overflow-hidden bg-black/50">
+                          <div className="px-4 py-2 bg-white/5 border-b border-white/10 text-[10px] font-black uppercase tracking-widest text-white/40">
+                            Submission Proof
+                          </div>
+                          <div className="p-4">
+                            <p className="text-xs text-white/80">{sub.proof_text}</p>
+                          </div>
                         </div>
-                        <div className="p-4 max-h-[200px] overflow-y-auto custom-scrollbar">
-                          {sub.workspace_files && Object.keys(sub.workspace_files).length > 0 ? (
-                            <div className="space-y-4">
-                              {Object.entries(sub.workspace_files).map(([fileName, content]) => (
-                                <div key={fileName}>
-                                  <div className="text-[10px] text-white/60 font-bold mb-1">{fileName}</div>
-                                  <pre className="text-xs text-white/80 font-mono bg-white/5 p-3 rounded-xl overflow-x-auto">
-                                    <code>{String(content)}</code>
-                                  </pre>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-xs text-white/40 italic">No file data saved.</p>
-                          )}
-                        </div>
-                      </div>
+                      )}
                       
                       <div className="flex justify-end gap-2 pt-2">
                         {sub.status === 'pending' && (
@@ -578,14 +536,6 @@ export default function UserDashboardPage() {
                             Approve & Grant XP
                           </Button>
                         )}
-                        <Button 
-                          onClick={() => router.push(`/challenges/${sub.challenge_id}/workspace?review=${sub.id}`)}
-                          variant="outline"
-                          className="h-10 px-6 rounded-xl border-white/10 text-white hover:bg-white/5 font-black uppercase tracking-widest text-[10px]"
-                        >
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          Review in Workspace
-                        </Button>
                       </div>
                     </div>
                   ))
@@ -597,22 +547,7 @@ export default function UserDashboardPage() {
           </div>
         )} {/* end activeTab === quests */}
 
-        {/* Tab: My Workspace */}
-        {activeTab === "workspace" && sessionUser && (
-          <div className="flex flex-col h-[calc(100vh-8rem)] min-h-[600px]">
-            <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
-              <div>
-                <h1 className="text-3xl font-black tracking-tighter">My Workspace</h1>
-                <p className="text-white/40 font-medium text-sm">Build, experiment, and save code projects.</p>
-              </div>
-            </div>
-            <div className="flex-1 min-h-0">
-              <PersonalWorkspace userId={sessionUser.id} />
-            </div>
-          </div>
-        )}
-
       </main>
     </div>
   );
-}
+}

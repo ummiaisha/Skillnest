@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -8,7 +8,35 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Heart, MessageCircle, Share2, Zap, ArrowLeft, MoreHorizontal } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { 
+  Heart, 
+  MessageCircle, 
+  Share2, 
+  Zap, 
+  ArrowLeft, 
+  MoreHorizontal,
+  Edit3,
+  Trash2,
+  Image as ImageIcon,
+  Video,
+  X,
+  Loader2
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -24,6 +52,15 @@ export default function PostDetailPage() {
   const [liked, setLiked] = useState(false);
   const [sessionUser, setSessionUser] = useState<any>(null);
   const [replyingTo, setReplyingTo] = useState<{ id: string, name: string } | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editImageUrl, setEditImageUrl] = useState("");
+  const [editVideoUrl, setEditVideoUrl] = useState("");
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,12 +105,134 @@ export default function PostDetailPage() {
       }
 
       setPost({ ...postData, likes_count: likesCount || 0 });
+      setEditTitle(postData.title || "");
+      setEditContent(postData.content || "");
+      setEditImageUrl(postData.image_url || "");
+      setEditVideoUrl(postData.video_url || "");
       setComments(commentData || []);
       setLoading(false);
     };
 
     fetchData();
   }, [id]);
+
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!sessionUser) {
+      toast.error("Authentication required. Please log in again.");
+      return;
+    }
+
+    setUploadingMedia(true);
+    setUploadProgress(0);
+    toast.info(`Preparing ${type} upload...`);
+    e.target.value = '';
+
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("File is too large (max 50MB)");
+      setUploadingMedia(false);
+      return;
+    }
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${sessionUser.id}-${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 95) return 95;
+        const increment = prev < 60 ? 7 : prev < 85 ? 3 : 1;
+        return prev + increment;
+      });
+    }, 400);
+
+    try {
+      const { data, error: uploadError } = await supabase.storage
+        .from('posts')
+        .upload(filePath, file, {
+          contentType: file.type || 'application/octet-stream',
+          upsert: true
+        });
+
+      if (uploadError) {
+        clearInterval(progressInterval);
+        throw uploadError;
+      }
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('posts')
+        .getPublicUrl(filePath);
+
+      if (type === 'image') {
+        setEditImageUrl(publicUrl);
+        setEditVideoUrl("");
+      } else {
+        setEditVideoUrl(publicUrl);
+        setEditImageUrl("");
+      }
+      toast.success(`${type === 'image' ? 'Image' : 'Video'} attached!`);
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast.error("Upload failed: " + error.message);
+    } finally {
+      setUploadingMedia(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const handleUpdatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sessionUser) return;
+
+    const { error } = await supabase
+      .from('posts')
+      .update({
+        title: editTitle,
+        content: editContent,
+        image_url: editImageUrl || null,
+        video_url: editVideoUrl || null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .eq('user_id', sessionUser.id);
+
+    if (error) {
+      toast.error("Failed to update post: " + error.message);
+    } else {
+      toast.success("Post updated successfully!");
+      setIsEditDialogOpen(false);
+      setPost((prev: any) => ({
+        ...prev,
+        title: editTitle,
+        content: editContent,
+        image_url: editImageUrl || null,
+        video_url: editVideoUrl || null
+      }));
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', sessionUser.id);
+
+    if (error) {
+      toast.error("Failed to delete post: " + error.message);
+    } else {
+      toast.success("Post deleted successfully!");
+      router.push("/skills");
+    }
+  };
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -198,9 +357,35 @@ export default function PostDetailPage() {
                   </p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <MoreHorizontal className="h-5 w-5 text-white/40" />
-              </Button>
+              {sessionUser && post.user_id === sessionUser.id ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <MoreHorizontal className="h-5 w-5 text-white/40" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-[#0A0A0A] border-white/10 text-white rounded-xl">
+                    <DropdownMenuItem 
+                      onClick={() => setIsEditDialogOpen(true)}
+                      className="cursor-pointer font-bold text-xs hover:bg-white/5"
+                    >
+                      <Edit3 className="h-3.5 w-3.5 mr-2" />
+                      Edit Post
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={handleDeletePost}
+                      className="cursor-pointer font-bold text-xs text-red-500 hover:bg-red-500/10 focus:text-red-500"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-2" />
+                      Delete Post
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <MoreHorizontal className="h-5 w-5 text-white/40" />
+                </Button>
+              )}
             </div>
           </CardHeader>
 
@@ -404,6 +589,135 @@ export default function PostDetailPage() {
           </div>
         </Card>
       </div>
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
+        setIsEditDialogOpen(open);
+      }}>
+        <DialogContent className="sm:max-w-[525px] bg-[#0A0A0A] border-white/[0.05] text-white rounded-[2rem]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black">Edit Insight</DialogTitle>
+            <DialogDescription className="text-white/40 text-xs">
+              Update your shared insight in the knowledge base.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdatePost} className="space-y-6 py-4">
+            <div className="max-h-[60vh] overflow-y-auto pr-4 -mr-4 space-y-6 py-2 custom-scrollbar">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Topic Title</label>
+                <Input 
+                  placeholder="e.g. How I mastered React Server Components"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="bg-white/5 border-white/10 rounded-xl"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Content</label>
+                <Textarea 
+                  placeholder="Share your experience or tutorial..."
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  className="bg-white/5 border-white/10 rounded-xl min-h-[200px]"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 block">Attach Media</label>
+                <div className="flex gap-4">
+                  <input 
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={(e) => handleMediaUpload(e, 'image')}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <input 
+                    type="file"
+                    ref={videoInputRef}
+                    onChange={(e) => handleMediaUpload(e, 'video')}
+                    accept="video/mp4,video/webm,video/ogg,video/quicktime,video/*"
+                    className="hidden"
+                  />
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    disabled={uploadingMedia}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={cn("rounded-xl h-11 px-4 gap-2 border-white/10 bg-white/5 hover:bg-white/10 transition-all text-xs font-bold", editImageUrl && "border-primary/50 text-primary")}
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                    Upload Image
+                  </Button>
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    disabled={uploadingMedia}
+                    onClick={() => videoInputRef.current?.click()}
+                    className={cn("rounded-xl h-11 px-4 gap-2 border-white/10 bg-white/5 hover:bg-white/10 transition-all text-xs font-bold", editVideoUrl && "border-primary/50 text-primary")}
+                  >
+                    <Video className="h-4 w-4" />
+                    Upload Video
+                  </Button>
+                </div>
+
+                {uploadingMedia && (
+                  <div className="flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl mt-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <div className="flex-1">
+                      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-white transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs font-black text-white">{uploadProgress}%</span>
+                  </div>
+                )}
+
+                {editImageUrl && !uploadingMedia && (
+                  <div className="relative w-32 aspect-video rounded-xl overflow-hidden border border-white/10 mt-2 group">
+                    <img src={editImageUrl} alt="Uploaded preview" className="object-cover w-full h-full" />
+                    <button 
+                      type="button"
+                      onClick={() => setEditImageUrl("")}
+                      className="absolute top-1 right-1 bg-black/60 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-3 w-3 text-white" />
+                    </button>
+                  </div>
+                )}
+
+                {editVideoUrl && !uploadingMedia && (
+                  <div className="relative w-32 aspect-video rounded-xl overflow-hidden border border-white/10 mt-2 group bg-black flex items-center justify-center">
+                    <video src={editVideoUrl} className="object-contain w-full h-full" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <Video className="h-5 w-5 text-white/50" />
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => setEditVideoUrl("")}
+                      className="absolute top-1 right-1 bg-black/60 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-3 w-3 text-white" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button 
+                type="submit" 
+                disabled={uploadingMedia}
+                className="w-full rounded-xl bg-white text-black font-black uppercase tracking-widest text-[10px] h-12 disabled:opacity-50"
+              >
+                {uploadingMedia ? "Uploading Media..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

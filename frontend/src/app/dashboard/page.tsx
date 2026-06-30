@@ -424,7 +424,7 @@ export default function HomeFeedPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12">
         {/* Main Feed */}
         <div className="lg:col-span-8 space-y-8">
           {/* Stories Section */}
@@ -437,7 +437,7 @@ export default function HomeFeedPage() {
           </section>
 
           {/* Create Post Bar */}
-          <Card className="premium-card p-6 bg-[#0A0A0A] border-white/[0.05] rounded-[32px] shadow-2xl">
+          <Card className="premium-card p-4 sm:p-6 bg-[#0A0A0A] border-white/[0.05] rounded-[32px] shadow-2xl">
             <div className="flex gap-4">
               <Avatar className="h-12 w-12 border border-white/10 ring-2 ring-white/5">
                 <AvatarImage src={profileData?.avatar_url} className="object-cover" />
@@ -618,7 +618,7 @@ export default function HomeFeedPage() {
               >
                 <Card className="premium-card overflow-hidden">
                   {post.user && (
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 sm:p-6">
                       <div className="flex items-center gap-3">
                         <Avatar 
                           className="h-10 w-10 border border-border cursor-pointer hover:opacity-80 transition-opacity"
@@ -653,7 +653,7 @@ export default function HomeFeedPage() {
                     </CardHeader>
                   )}
 
-                  <CardContent className={cn("p-6 pt-0", !post.user && "pt-6")}>
+                  <CardContent className={cn("p-4 sm:p-6 pt-0", !post.user && "pt-4 sm:pt-6")}>
                     {post.title && <h3 className="font-black text-xl mb-3 tracking-tight">{post.title}</h3>}
                     <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                       {post.content}
@@ -678,7 +678,7 @@ export default function HomeFeedPage() {
                   </CardContent>
 
                   {post.user && (
-                    <CardFooter className="p-4 border-t border-white/[0.03] flex items-center justify-between">
+                    <CardFooter className="p-4 sm:p-5 border-t border-white/[0.03] flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         <Button 
                           variant="ghost" 
@@ -723,7 +723,7 @@ export default function HomeFeedPage() {
         <div className="lg:col-span-4 space-y-8">
           {/* User Stats Card */}
           <Card className="premium-card bg-[#0A0A0A] border-white/[0.05] rounded-[32px] overflow-hidden">
-            <div className="p-6 border-b border-white/[0.03]">
+            <div className="p-4 sm:p-6 border-b border-white/[0.03]">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-1">Your Identity</h2>
@@ -749,7 +749,7 @@ export default function HomeFeedPage() {
                 </div>
               </div>
             </div>
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-6">
               <div className="flex justify-between items-end">
                 <div>
                   <p className="text-[8px] font-black uppercase tracking-widest text-white mb-1">Points</p>

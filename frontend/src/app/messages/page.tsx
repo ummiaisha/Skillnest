@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
-import { Search, Send, User, MessageSquare } from "lucide-react";
+import { Search, Send, User, MessageSquare, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -13,6 +13,7 @@ export default function MessagesPage() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [globalSearchResults, setGlobalSearchResults] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize
@@ -61,6 +62,34 @@ export default function MessagesPage() {
     };
     init();
   }, []);
+
+  // Search for new users to chat with
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const searchGlobalUsers = async () => {
+      if (searchQuery.length < 2) {
+        setGlobalSearchResults([]);
+        return;
+      }
+
+      const { data: matchedProfiles } = await supabase
+        .from("profiles")
+        .select("id, username, full_name, avatar_url")
+        .neq("id", currentUser.id)
+        .or(`full_name.ilike.%${searchQuery}%,username.ilike.%${searchQuery}%`)
+        .limit(5);
+
+      if (matchedProfiles) {
+        const activeIds = new Set(users.map(u => u.id));
+        const filteredResults = matchedProfiles.filter(p => !activeIds.has(p.id));
+        setGlobalSearchResults(filteredResults);
+      }
+    };
+
+    const timer = setTimeout(searchGlobalUsers, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, currentUser, users]);
 
   // Fetch messages when a user is selected
   useEffect(() => {
@@ -171,7 +200,7 @@ export default function MessagesPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Left Sidebar - Contacts List */}
-      <div className="w-80 border-r border-border bg-card flex flex-col shrink-0">
+      <div className={`w-full md:w-80 border-r border-border bg-card flex flex-col shrink-0 ${selectedUser ? "hidden md:flex" : "flex"}`}>
         <div className="p-4 border-b border-border">
           <div className="flex items-center gap-3 mb-4">
             <Button variant="ghost" size="icon" onClick={() => window.location.href = '/dashboard'} className="h-8 w-8 rounded-full">
@@ -191,38 +220,91 @@ export default function MessagesPage() {
         </div>
         
         <div className="flex-1 overflow-y-auto">
-          {filteredUsers.length === 0 ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">No users found</div>
-          ) : (
-            filteredUsers.map((user) => (
-              <button
-                key={user.id}
-                onClick={() => setSelectedUser(user)}
-                className={`w-full p-4 flex items-center gap-3 hover:bg-secondary/50 transition-colors text-left border-b border-border/50 ${selectedUser?.id === user.id ? 'bg-secondary/50' : ''}`}
-              >
-                <div className="h-10 w-10 rounded-full bg-secondary shrink-0 overflow-hidden flex items-center justify-center">
-                  {user.avatar_url ? (
-                    <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <User className="h-5 w-5 text-muted-foreground" />
-                  )}
+          {/* Active Chats Section */}
+          <div className="space-y-1">
+            {filteredUsers.length > 0 && (
+              <>
+                <div className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white/30">
+                  Active Chats
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{user.full_name || user.username}</p>
-                  <p className="text-xs text-muted-foreground truncate">Tap to chat</p>
+                {filteredUsers.map((user) => (
+                  <button
+                    key={user.id}
+                    onClick={() => setSelectedUser(user)}
+                    className={`w-full p-4 flex items-center gap-3 hover:bg-secondary/50 transition-colors text-left border-b border-border/50 ${selectedUser?.id === user.id ? 'bg-secondary/50' : ''}`}
+                  >
+                    <div className="h-10 w-10 rounded-full bg-secondary shrink-0 overflow-hidden flex items-center justify-center">
+                      {user.avatar_url ? (
+                        <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <User className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">{user.full_name || user.username}</p>
+                      <p className="text-xs text-muted-foreground truncate">Tap to chat</p>
+                    </div>
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+
+          {/* Global Search / Start New Chat Section */}
+          <div className="mt-4 space-y-1">
+            {globalSearchResults.length > 0 && (
+              <>
+                <div className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-white/30 border-t border-border/30 pt-4">
+                  Find New Creators
                 </div>
-              </button>
-            ))
+                {globalSearchResults.map((user) => (
+                  <button
+                    key={user.id}
+                    onClick={() => {
+                      setUsers(prev => [user, ...prev]);
+                      setSelectedUser(user);
+                      setSearchQuery("");
+                      setGlobalSearchResults([]);
+                    }}
+                    className="w-full p-4 flex items-center gap-3 hover:bg-secondary/50 transition-colors text-left border-b border-border/50"
+                  >
+                    <div className="h-10 w-10 rounded-full bg-secondary shrink-0 overflow-hidden flex items-center justify-center">
+                      {user.avatar_url ? (
+                        <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <User className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm truncate">{user.full_name || user.username}</p>
+                      <p className="text-xs text-blue-500 font-bold truncate">Start new conversation</p>
+                    </div>
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+
+          {filteredUsers.length === 0 && globalSearchResults.length === 0 && (
+            <div className="p-8 text-center text-sm text-muted-foreground">No users found</div>
           )}
         </div>
       </div>
 
       {/* Right Area - Active Chat */}
-      <div className="flex-1 flex flex-col bg-background">
+      <div className={`flex-1 min-w-0 flex flex-col bg-background ${selectedUser ? "flex" : "hidden md:flex"}`}>
         {selectedUser ? (
           <>
             {/* Chat Header */}
             <div className="h-16 border-b border-border bg-card px-6 flex items-center gap-4 shrink-0 shadow-sm z-10">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setSelectedUser(null)} 
+                className="h-8 w-8 rounded-full md:hidden mr-1"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
               <div className="h-10 w-10 rounded-full bg-secondary overflow-hidden flex items-center justify-center">
                 {selectedUser.avatar_url ? (
                   <img src={selectedUser.avatar_url} alt="" className="h-full w-full object-cover" />

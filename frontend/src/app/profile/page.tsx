@@ -233,7 +233,7 @@ export default function ProfilePage() {
 
     const updatedProfile = {
       full_name: editForm.full_name,
-      username: editForm.username,
+      username: editForm.username.trim() || null,
       bio: editForm.bio,
       skills: editForm.skills.split(",").map(s => s.trim()).filter(s => s !== ""),
       avatar_url: editForm.avatar_url,

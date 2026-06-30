@@ -6,7 +6,6 @@ import {
   Home, 
   Trophy, 
   Lightbulb, 
-  BarChart2, 
   User, 
   Settings,
   ShieldCheck,
@@ -14,8 +13,7 @@ import {
   Award,
   Zap,
   MoreHorizontal,
-  MessageSquare,
-  Radio
+  MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,9 +26,7 @@ const navItems = [
   { label: "Challenges", href: "/challenges", icon: Trophy },
   { label: "Skill Posts", href: "/skills", icon: Lightbulb },
   { label: "Leaderboard", href: "/leaderboard", icon: TrendingUp },
-  { label: "Progress", href: "/progress", icon: BarChart2 },
   { label: "Messages", href: "/messages", icon: MessageSquare },
-  { label: "Go Live", href: "/live", icon: Radio },
   { label: "Profile", href: "/profile", icon: User },
   { label: "Admin", href: "/admin", icon: ShieldCheck },
 ];
@@ -109,20 +105,13 @@ export function LeftSidebar() {
                 variant="ghost"
                 className={cn(
                   "w-full justify-start gap-4 rounded-2xl h-12 px-4 font-bold text-sm tracking-tight transition-all",
-                  item.label === "Go Live"
-                    ? pathname === "/live"
-                      ? "bg-red-500 text-white shadow-lg shadow-red-500/20 hover:bg-red-600"
-                      : "text-red-400 hover:bg-red-500/10 border border-red-500/20 hover:border-red-500/30"
-                    : pathname === displayHref
-                      ? "bg-foreground text-background shadow-lg hover:bg-foreground/90"
-                      : "hover:bg-secondary/50 text-muted-foreground hover:text-foreground"
+                  pathname === displayHref
+                    ? "bg-foreground text-background shadow-lg hover:bg-foreground/90"
+                    : "hover:bg-secondary/50 text-muted-foreground hover:text-foreground"
                 )}
               >
-                <DisplayIcon className={cn("h-5 w-5", item.label === "Go Live" && "animate-pulse")} />
+                <DisplayIcon className="h-5 w-5" />
                 {displayLabel}
-                {item.label === "Go Live" && (
-                  <span className="ml-auto h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                )}
               </Button>
             </Link>
           );

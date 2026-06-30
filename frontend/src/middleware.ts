@@ -61,9 +61,8 @@ export async function middleware(request: NextRequest) {
   const isProfile = request.nextUrl.pathname.startsWith('/profile')
   const isAdmin = request.nextUrl.pathname.startsWith('/admin')
   const isChallenges = request.nextUrl.pathname.startsWith('/challenges')
-  const isProgress = request.nextUrl.pathname.startsWith('/progress')
 
-  if (!session && (isDashboard || isProfile || isAdmin || isChallenges || isProgress)) {
+  if (!session && (isDashboard || isProfile || isAdmin || isChallenges)) {
     // Temporarily disabled to fix client-server auth sync issue
     // return NextResponse.redirect(new URL('/login', request.url))
   }
@@ -77,6 +76,5 @@ export const config = {
     '/profile/:path*',
     '/admin/:path*',
     '/challenges/:path*',
-    '/progress/:path*',
   ],
 }

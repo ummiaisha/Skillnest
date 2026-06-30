@@ -5,8 +5,10 @@ import { supabase } from "@/lib/supabase";
 import { Search, Send, User, MessageSquare, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 export default function MessagesPage() {
+  const router = useRouter();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -203,7 +205,7 @@ export default function MessagesPage() {
       <div className={`w-full md:w-80 border-r border-border bg-card flex flex-col shrink-0 ${selectedUser ? "hidden md:flex" : "flex"}`}>
         <div className="p-4 border-b border-border">
           <div className="flex items-center gap-3 mb-4">
-            <Button variant="ghost" size="icon" onClick={() => window.location.href = '/dashboard'} className="h-8 w-8 rounded-full">
+            <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard')} className="h-8 w-8 rounded-full">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left h-4 w-4"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
             </Button>
             <h2 className="text-xl font-bold">Messages</h2>

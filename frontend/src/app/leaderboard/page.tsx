@@ -61,7 +61,7 @@ export default function LeaderboardPage() {
         setSessionUser(session.user);
         setLoading(false);
       } else {
-        window.location.href = "/login";
+        router.push("/login");
       }
     };
     initCheck();
@@ -71,7 +71,7 @@ export default function LeaderboardPage() {
         setSessionUser(session.user);
         setLoading(false);
       } else if (event === 'SIGNED_OUT') {
-        window.location.href = "/login";
+        router.push("/login");
       }
     });
 
@@ -156,7 +156,7 @@ export default function LeaderboardPage() {
       </section>
 
       {/* Podium */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end max-w-3xl mx-auto pt-12">
+      <section className="grid grid-cols-3 gap-2 sm:gap-4 md:gap-8 items-end max-w-3xl mx-auto pt-12">
         {players.slice(0, 3).sort((a, b) => a.rank === 1 ? -1 : b.rank === 1 ? 1 : a.rank - b.rank).map((user, i) => (
           <motion.div
             key={user.id}
@@ -165,37 +165,37 @@ export default function LeaderboardPage() {
             transition={{ delay: i * 0.1 }}
             className={cn(
               "relative flex flex-col items-center",
-              user.rank === 1 ? "md:order-2 z-10" : user.rank === 2 ? "md:order-1" : "md:order-3"
+              user.rank === 1 ? "order-2 z-10" : user.rank === 2 ? "order-1" : "order-3"
             )}
           >
             <div className={cn(
-              "relative mb-6",
-              user.rank === 1 ? "h-32 w-32" : "h-24 w-24"
+              "relative mb-4 sm:mb-6",
+              user.rank === 1 ? "h-20 w-20 sm:h-28 sm:w-28 md:h-32 md:w-32" : "h-14 w-14 sm:h-20 sm:w-20 md:h-24 md:w-24"
             )}>
-              <Avatar className="h-full w-full border-4 border-foreground shadow-2xl">
+              <Avatar className="h-full w-full border-2 sm:border-4 border-foreground shadow-2xl">
                 <AvatarImage src={user.avatar_url} className="object-cover" />
-                <AvatarFallback className="bg-secondary text-2xl font-black">{user.avatar}</AvatarFallback>
+                <AvatarFallback className="bg-secondary text-base sm:text-2xl font-black">{user.avatar}</AvatarFallback>
               </Avatar>
               <div className={cn(
-                "absolute -top-4 left-1/2 -translate-x-1/2 h-7 w-7 rounded-full flex items-center justify-center border-4 border-background",
+                "absolute -top-2 sm:-top-4 left-1/2 -translate-x-1/2 h-5 w-5 sm:h-7 sm:w-7 rounded-full flex items-center justify-center border-2 sm:border-4 border-background",
                 user.rank === 1 ? "bg-yellow-500" : user.rank === 2 ? "bg-slate-300" : "bg-amber-600"
               )}>
-                <span className="font-black text-background text-sm">{user.rank}</span>
+                <span className="font-black text-background text-[10px] sm:text-sm">{user.rank}</span>
               </div>
             </div>
 
-            <Link href={`/profile/${user.id}`} className="text-center space-y-1 block hover:opacity-80 transition-opacity">
-              <h3 className="font-black text-lg">{user.name}</h3>
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{user.points} XP</p>
-              <div className="flex items-center justify-center gap-1 mt-2">
-                <Zap className="h-3 w-3 fill-foreground" />
-                <span className="text-[10px] font-black">{user.streak} DAY STREAK</span>
+            <Link href={`/profile/${user.id}`} className="text-center space-y-1 block hover:opacity-80 transition-opacity w-full px-1">
+              <h3 className="font-black text-xs sm:text-base md:text-lg truncate">{user.name}</h3>
+              <p className="text-[8px] sm:text-[10px] font-black text-muted-foreground uppercase tracking-widest">{user.points} XP</p>
+              <div className="flex items-center justify-center gap-0.5 sm:gap-1 mt-1 sm:mt-2">
+                <Zap className="h-2 w-2 sm:h-3 sm:w-3 fill-foreground" />
+                <span className="text-[8px] sm:text-[10px] font-black">{user.streak}D STREAK</span>
               </div>
             </Link>
 
             <div className={cn(
-              "mt-6 w-full rounded-t-3xl border-x border-t border-border bg-secondary/10",
-              user.rank === 1 ? "h-32" : user.rank === 2 ? "h-24" : "h-16"
+              "mt-4 sm:mt-6 w-full rounded-t-2xl sm:rounded-t-3xl border-x border-t border-border bg-secondary/10",
+              user.rank === 1 ? "h-16 sm:h-24 md:h-32" : user.rank === 2 ? "h-12 sm:h-18 md:h-24" : "h-8 sm:h-12 md:h-16"
             )}></div>
           </motion.div>
         ))}

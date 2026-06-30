@@ -312,8 +312,16 @@ export default function UserDashboardPage() {
           <div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
               <div>
-                <h1 className="text-4xl lg:text-6xl font-black tracking-tighter mb-2">
-                  Quest Development
+                <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black tracking-tighter mb-2 flex items-center gap-3">
+                  <Button 
+                    onClick={() => router.push('/dashboard')}
+                    variant="ghost" 
+                    size="icon"
+                    className="h-10 w-10 rounded-full border border-white/10 hover:bg-white/5 md:hidden shrink-0"
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                  <span>Quest Development</span>
                 </h1>
                 <p className="text-white/40 font-medium">
                   Create new coding missions, edit levels, or remove modules.

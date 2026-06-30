@@ -15,11 +15,19 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const isMessagesPage = pathname?.startsWith("/messages");
   
   // Define pages where sidebars should be hidden
-  const hideSidebars = [
+  const hideLeftSidebar = [
     "/login", 
     "/register", 
     "/forgot-password",
     "/" 
+  ].includes(pathname) || isAdminPage || isUserDashboardPage || isMessagesPage;
+
+  const hideRightSidebar = [
+    "/login", 
+    "/register", 
+    "/forgot-password",
+    "/",
+    "/dashboard"
   ].includes(pathname) || isAdminPage || isUserDashboardPage || isMessagesPage;
 
   // Hide global navbar on auth pages, admin pages, and user dashboard pages
@@ -29,14 +37,15 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
     <div className="flex flex-col min-h-screen">
       {!hideNavbar && <Navbar />}
       <div className={cn("flex flex-1", !hideNavbar && "pt-16")}>
-        {!hideSidebars && <LeftSidebar />}
+        {!hideLeftSidebar && <LeftSidebar />}
         <main className={cn(
           "flex-1 min-h-screen min-w-0",
-          !hideSidebars && "lg:ml-64 xl:mr-80"
+          !hideLeftSidebar && "lg:ml-64",
+          !hideRightSidebar && "xl:mr-80"
         )}>
           {children}
         </main>
-        {!hideSidebars && <RightSidebar />}
+        {!hideRightSidebar && <RightSidebar />}
       </div>
     </div>
   );

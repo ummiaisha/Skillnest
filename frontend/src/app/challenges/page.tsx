@@ -76,7 +76,7 @@ export default function ChallengesPage() {
         setSessionUser(session.user);
         loadChallenges();
       } else {
-        window.location.href = "/login";
+        router.push("/login");
       }
     };
     initCheck();
@@ -86,7 +86,7 @@ export default function ChallengesPage() {
         setSessionUser(session.user);
         loadChallenges();
       } else if (event === 'SIGNED_OUT') {
-        window.location.href = "/login";
+        router.push("/login");
       }
     });
 

@@ -423,6 +423,35 @@ export default function AdminDashboardPage() {
       {/* 🖥️ Main Dashboard Workspace */}
       <main className="flex-1 min-w-0 p-4 sm:p-8 lg:p-12 overflow-y-auto">
         
+        {/* Mobile Horizontal Tabs Selector */}
+        <div className="md:hidden flex gap-2 overflow-x-auto pb-4 mb-8 scrollbar-none border-b border-white/[0.05]">
+          {[
+            { id: "overview", label: "Overview", icon: Layers },
+            { id: "analytics", label: "Analytics", icon: Activity },
+            { id: "users", label: "Users", icon: Globe },
+            { id: "challenges", label: "Quests", icon: Trophy },
+            { id: "security", label: "Firewall", icon: Lock },
+            { id: "settings", label: "Config", icon: Cpu },
+          ].map(tab => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-2 h-10 px-4 rounded-xl font-bold text-xs shrink-0 transition-all ${
+                  isActive 
+                    ? "bg-white text-black shadow-lg" 
+                    : "bg-white/5 text-white/60 hover:text-white"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+        
         {/* Dynamic Headers based on selected tab */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div>

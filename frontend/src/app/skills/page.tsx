@@ -335,7 +335,7 @@ export default function SkillPostsPage() {
         setSessionUser(session.user);
         setLoading(false);
       } else {
-        window.location.href = "/login";
+        router.push("/login");
       }
     };
     initCheck();
@@ -369,7 +369,7 @@ export default function SkillPostsPage() {
         setSessionUser(session.user);
         setLoading(false);
       } else if (event === 'SIGNED_OUT') {
-        window.location.href = "/login";
+        router.push("/login");
       }
     });
 

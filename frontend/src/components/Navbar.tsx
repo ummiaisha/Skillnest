@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { Search, User, Menu, LogIn, UserPlus, LogOut, Lightbulb, Trophy, Shield, X } from "lucide-react";
+import { Search, User, Menu, LogIn, UserPlus, LogOut, Lightbulb, Trophy, Shield, X, Home, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -301,7 +301,7 @@ export default function Navbar() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="md:hidden text-white/80 hover:text-white"
+            className="lg:hidden text-white/80 hover:text-white"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -317,7 +317,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="md:hidden border-b border-border bg-[#050505]/95 backdrop-blur-2xl overflow-hidden z-40"
+            className="lg:hidden border-b border-border bg-[#050505]/95 backdrop-blur-2xl overflow-hidden z-40"
           >
             <div className="container mx-auto px-6 py-8 flex flex-col gap-6">
               {/* Mobile Search */}
@@ -408,6 +408,9 @@ export default function Navbar() {
               {/* Navigation Links */}
               <div className="flex flex-col gap-2">
                 <p className="text-[9px] font-black uppercase tracking-widest text-white/25 px-2 mb-1">Navigation</p>
+                <Link href="/dashboard" className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.01] hover:bg-white/5 border border-white/5 font-bold text-sm text-white/80 transition-colors">
+                  <span className="flex items-center gap-3"><Home className="h-4 w-4 text-blue-500" /> Home Feed</span>
+                </Link>
                 <Link href="/challenges" className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.01] hover:bg-white/5 border border-white/5 font-bold text-sm text-white/80 transition-colors">
                   <span className="flex items-center gap-3"><Trophy className="h-4 w-4 text-orange-500" /> Challenges</span>
                 </Link>
@@ -417,6 +420,11 @@ export default function Navbar() {
                 <Link href="/leaderboard" className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.01] hover:bg-white/5 border border-white/5 font-bold text-sm text-white/80 transition-colors">
                   <span className="flex items-center gap-3"><User className="h-4 w-4 text-green-500" /> Leaderboard</span>
                 </Link>
+                {user && (
+                  <Link href="/messages" className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.01] hover:bg-white/5 border border-white/5 font-bold text-sm text-white/80 transition-colors">
+                    <span className="flex items-center gap-3"><MessageSquare className="h-4 w-4 text-purple-500" /> Messages</span>
+                  </Link>
+                )}
               </div>
 
               {/* User Account Controls */}

@@ -133,11 +133,32 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
 
     setIsFollowLoading(true);
     try {
-      setIsFollowing(!isFollowing);
-      toast.success(isFollowing ? `Unfollowed ${profileData.full_name}` : `Following ${profileData.full_name}`);
-      await fetchFollowCounts();
+      if (isFollowing) {
+        // Unfollow: delete database record
+        const { error } = await supabase
+          .from('followers')
+          .delete()
+          .eq('follower_id', session.user.id)
+          .eq('following_id', id);
 
-      if (!isFollowing) {
+        if (error) throw error;
+
+        setIsFollowing(false);
+        toast.success(`Unfollowed ${profileData.full_name}`);
+      } else {
+        // Follow: insert database record
+        const { error } = await supabase
+          .from('followers')
+          .insert({
+            follower_id: session.user.id,
+            following_id: id
+          });
+
+        if (error) throw error;
+
+        setIsFollowing(true);
+        toast.success(`Following ${profileData.full_name}`);
+
         // Activity Log
         await supabase.from('activities').insert({
           user_id: session.user.id,
@@ -146,6 +167,8 @@ export default function UserProfilePage({ params }: { params: Promise<{ id: stri
           metadata: { target_user_id: id }
         });
       }
+
+      await fetchFollowCounts();
     } catch (error: any) {
       toast.error("Action failed: " + error.message);
     } finally {
